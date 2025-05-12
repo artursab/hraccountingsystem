@@ -33,13 +33,13 @@ Unit and integration tests
 ### Installation
 
 Clone the repository
-git clone https://github.com/yourusername/hr-accounting-system.git
-cd hr-accounting-system
+"git clone https://github.com/yourusername/hr-accounting-system.git
+cd hr-accounting-system"
 
 Build the project
-mvn clean install
+"mvn clean install"
 
 Run the application
-mvn spring-boot:run
+"mvn spring-boot:run"
 
 Access the application at http://localhost:8080
