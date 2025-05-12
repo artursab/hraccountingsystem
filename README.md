@@ -1,30 +1,36 @@
 This project is a first-year software engineering coursework implementation of a human resources accounting system. It provides functionality for employee management, time tracking, organizational structure, and reporting to help businesses efficiently manage their workforce.
 
-Project Structure
+### Project Structure
 The application follows a three-tier architecture:
 
-Java Application Source
+#### Java Application Source
 
 config - Configuration classes
+
 controller - MVC controllers
+
 dto - Data Transfer Objects
+
 model - Entity models
+
 repository - Data access layer
+
 service - Business logic
+
 EmsMvcApplication.java - Application entry point
 
 
-Resources
-
+#### Resources
 static - CSS, JS, images
+
 templates - Thymeleaf HTML templates
 
 
-Tests
+#### Tests
 
 Unit and integration tests
 
-Installation
+### Installation
 
 Clone the repository
 git clone https://github.com/yourusername/hr-accounting-system.git
