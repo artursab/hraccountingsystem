@@ -1,20 +1,28 @@
 This project is a first-year software engineering coursework implementation of a human resources accounting system. It provides functionality for employee management, time tracking, organizational structure, and reporting to help businesses efficiently manage their workforce.
 
+Project Structure
 The application follows a three-tier architecture:
-src/
-├── main/
-│   ├── java/com/company/ems/
-│   │   ├── config/           # Configuration classes
-│   │   ├── controller/       # MVC controllers
-│   │   ├── dto/              # Data Transfer Objects
-│   │   ├── model/            # Entity models
-│   │   ├── repository/       # Data access layer
-│   │   ├── service/          # Business logic
-│   │   └── EmsMvcApplication.java  # Application entry point
-│   └── resources/
-│       ├── static/           # CSS, JS, images
-│       └── templates/        # Thymeleaf HTML templates
-└── test/                     # Unit and integration tests
+
+Java Application Source
+
+config - Configuration classes
+controller - MVC controllers
+dto - Data Transfer Objects
+model - Entity models
+repository - Data access layer
+service - Business logic
+EmsMvcApplication.java - Application entry point
+
+
+Resources
+
+static - CSS, JS, images
+templates - Thymeleaf HTML templates
+
+
+Tests
+
+Unit and integration tests
 
 Installation
 
