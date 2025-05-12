@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6" lang="en">
+<head th:replace="~{fragments/header :: head('Dashboard')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<!-- Header -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- Main Content -->
+<main>
+  <div class="content-wrapper">
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/sidebar :: user-sidebar(activeTab='dashboard')}"></div>
+
+    <!-- Main content -->
+    <div class="main-content">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h1 class="h3">My Dashboard</h1>
+          <span class="badge bg-primary p-2">
+                            <i class="fas fa-calendar-day me-1"></i>
+                            <span th:text="${#temporals.format(#temporals.createNow(), 'EEEE, MMMM d, yyyy')}">Sunday, May 04, 2025</span>
+                        </span>
+        </div>
+
+        <!-- No employee record message -->
+        <div class="alert alert-warning" th:if="${noEmployeeRecord}">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <span>You do not have an employee record in the system. Please contact an administrator.</span>
+        </div>
+
+        <!-- Employee Dashboard Content -->
+        <div th:if="${!noEmployeeRecord}">
+          <!-- Welcome Banner -->
+          <div class="card mb-4 bg-primary text-white">
+            <div class="card-body p-4">
+              <div class="d-flex align-items-center">
+                <div class="me-3">
+                  <div class="bg-white text-primary rounded-circle p-3">
+                    <i class="fas fa-user fa-2x"></i>
+                  </div>
+                </div>
+                <div>
+                  <h4 class="mb-1">Welcome, <span th:text="${employee.firstName}">User</span>!</h4>
+                  <p class="mb-0 opacity-75">
+                    <span th:text="${employee.position ?: 'Employee'}">Position</span> |
+                    <span th:text="${employee.department ?: 'Department'}">Department</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Time Tracking Card -->
+          <div class="row mb-4" th:if="${activeTimeEntry != null}">
+            <div class="col-12">
+              <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                  <h5 class="mb-0">
+                    <i class="fas fa-stopwatch me-2"></i>
+                    Active Time Tracking
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <div class="row align-items-center">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                      <div class="d-flex align-items-center">
+                        <div class="time-tracking-active"></div>
+                        <h2 id="activeTimerDisplay" class="mb-0 display-4 fw-bold">00:00:00</h2>
+                      </div>
+                      <p class="mb-0 text-muted">
+                        <strong>Category:</strong> <span th:text="${activeTimeEntry.category ?: 'Work'}">Category</span><br>
+                        <strong>Started:</strong> <span th:text="${#temporals.format(activeTimeEntry.startTime, 'HH:mm')}">09:00</span>
+                      </p>
+                      <p class="text-muted" th:if="${activeTimeEntry.description != null && !activeTimeEntry.description.isEmpty()}">
+                        <strong>Description:</strong> <span th:text="${activeTimeEntry.description}">Description</span>
+                      </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                      <form th:action="@{/user/time-tracking/stop}" method="get">
+                        <input type="hidden" name="employeeId" th:value="${employee.id}">
+                        <button type="submit" class="btn btn-danger btn-lg">
+                          <i class="fas fa-stop-circle me-2"></i>
+                          Stop Time Tracking
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Time Summary & Start Tracking -->
+          <div class="row g-4 mb-4">
+            <!-- Time Summary -->
+            <div class="col-md-6">
+              <div class="card h-100">
+                <div class="card-header bg-light">
+                  <h5 class="card-title mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    Time Summary
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <div class="row g-3">
+                    <div class="col-6">
+                      <div class="card bg-light">
+                        <div class="card-body text-center">
+                          <h6 class="text-muted mb-2">Today</h6>
+                          <h3 class="mb-0" th:text="${todayHours + ' hrs'}">0.00 hrs</h3>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="card bg-light">
+                        <div class="card-body text-center">
+                          <h6 class="text-muted mb-2">This Week</h6>
+                          <h3 class="mb-0" th:text="${weekHours + ' hrs'}">0.00 hrs</h3>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr>
+
+                  <h6>Today's Entries</h6>
+                  <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                      <thead>
+                      <tr>
+                        <th>Time</th>
+                        <th>Duration</th>
+                        <th>Category</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr th:each="entry : ${todayEntries}">
+                        <td>
+                          <span th:text="${#temporals.format(entry.startTime, 'HH:mm')}">09:00</span>
+                          <span th:if="${entry.endTime != null}">
+                                                                - <span th:text="${#temporals.format(entry.endTime, 'HH:mm')}">10:00</span>
+                                                            </span>
+                          <span th:if="${entry.endTime == null}" class="badge bg-danger ms-1">Active</span>
+                        </td>
+                        <td>
+                                                            <span th:if="${entry.endTime != null}"
+                                                                  th:text="${#numbers.formatDecimal(entry.getDurationHours(), 1, 2) + ' hrs'}">
+                                                                1.00 hrs
+                                                            </span>
+                          <span th:if="${entry.endTime == null}">-</span>
+                        </td>
+                        <td>
+                          <span class="badge bg-secondary" th:text="${entry.category ?: 'Work'}">Category</span>
+                        </td>
+                      </tr>
+                      <tr th:if="${todayEntries.empty}">
+                        <td colspan="3" class="text-center text-muted">No time entries today</td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="card-footer text-end">
+                  <a th:href="@{/user/time-tracking}" class="btn btn-primary">
+                    View Calendar <i class="fas fa-arrow-right ms-1"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Start Tracking -->
+            <div class="col-md-6" th:if="${activeTimeEntry == null}">
+              <div class="card h-100">
+                <div class="card-header bg-light">
+                  <h5 class="card-title mb-0">
+                    <i class="fas fa-play-circle me-2"></i>
+                    Start Time Tracking
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <form th:action="@{/user/time-tracking/start}" method="post">
+                    <input type="hidden" id="employeeId" name="employeeId" th:value="${employee.id}">
+
+                    <div class="mb-3">
+                      <label for="timeEntryCategory" class="form-label">Category</label>
+                      <select id="timeEntryCategory" name="category" class="form-select">
+                        <option value="Regular Work">Regular Work</option>
+                        <option value="Meeting">Meeting</option>
+                        <option value="Training">Training</option>
+                        <option value="Project">Project</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+
+                    <div class="mb-4">
+                      <label for="timeEntryDescription" class="form-label">Description (Optional)</label>
+                      <textarea id="timeEntryDescription" name="description" class="form-control"
+                                rows="3" placeholder="Add optional details about what you're working on"></textarea>
+                    </div>
+
+                    <div class="d-grid">
+                      <button type="submit" id="startTimeTracking" class="btn btn-success btn-lg">
+                        <i class="fas fa-play-circle me-2"></i>
+                        Start Time Tracking
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Links (when active tracking) -->
+            <div class="col-md-6" th:if="${activeTimeEntry != null}">
+              <div class="card h-100">
+                <div class="card-header bg-light">
+                  <h5 class="card-title mb-0">
+                    <i class="fas fa-link me-2"></i>
+                    Quick Links
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <div class="row g-3">
+                    <div class="col-6">
+                      <a th:href="@{/user/time-tracking}" class="btn btn-outline-primary w-100 py-3">
+                        <i class="fas fa-calendar-alt fa-2x mb-2"></i>
+                        <div>Time Calendar</div>
+                      </a>
+                    </div>
+                    <div class="col-6">
+                      <a th:href="@{/user/profile}" class="btn btn-outline-info w-100 py-3">
+                        <i class="fas fa-user-circle fa-2x mb-2"></i>
+                        <div>My Profile</div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+  // For active time entry timer display
+  document.addEventListener('DOMContentLoaded', function() {
+    const activeTimeEntryExists = [[${activeTimeEntry != null}]];
+    const startTimeString = [[${activeTimeEntry != null ? activeTimeEntry.startTime : null}]];
+
+    if (activeTimeEntryExists && startTimeString) {
+      updateActiveTimer(startTimeString);
+    }
+  });
+
+  function updateActiveTimer(startTimeString) {
+    const startTime = new Date(startTimeString);
+    const timerDisplay = document.getElementById('activeTimerDisplay');
+
+    function updateTimer() {
+      const now = new Date();
+      const diff = Math.floor((now - startTime) / 1000);
+
+      const hours = Math.floor(diff / 3600).toString().padStart(2, '0');
+      const minutes = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+      const seconds = Math.floor(diff % 60).toString().padStart(2, '0');
+
+      timerDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  }
+</script>
+</body>
+</html>

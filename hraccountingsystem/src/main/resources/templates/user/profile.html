@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6" lang="en">
+<head th:replace="~{fragments/header :: head('Profile')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<!-- Header -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- Main Content -->
+<main>
+  <div class="content-wrapper">
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/sidebar :: user-sidebar(activeTab='profile')}"></div>
+
+    <!-- Main content -->
+    <div class="main-content">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h1 class="h3">My Profile</h1>
+          <span class="badge bg-primary p-2">
+            <i class="fas fa-calendar-day me-1"></i>
+            <span th:text="${#temporals.format(#temporals.createNow(), 'EEEE, MMMM d, yyyy')}">Monday, May 05, 2025</span>
+          </span>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="card">
+          <div class="card-header bg-light">
+            <h5 class="card-title mb-0">
+              <i class="fas fa-user-circle me-2"></i>
+              User Information
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <p><strong>Username:</strong> <span sec:authentication="name">username</span></p>
+                <p><strong>First Name:</strong> <span th:text="${user.firstName ?: 'Not set'}">First Name</span></p>
+                <p><strong>Last Name:</strong> <span th:text="${user.lastName ?: 'Not set'}">Last Name</span></p>
+                <p><strong>Email:</strong> <span th:text="${user.email ?: 'Not set'}">Email</span></p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>Role:</strong> <span sec:authentication="principal.authorities">[ROLE_USER]</span></p>
+                <p><strong>Account Created:</strong> <span th:text="${#temporals.format(user.createdAt, 'dd-MM-yyyy HH:mm')}">Date</span></p>
+                <p><strong>Last Updated:</strong> <span th:text="${user.updatedAt != null ? #temporals.format(user.updatedAt, 'dd-MM-yyyy HH:mm') : 'Never'}">Date</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Employee Record (if exists) -->
+        <div class="card mt-4" th:if="${employee != null}">
+          <div class="card-header bg-light">
+            <h5 class="card-title mb-0">
+              <i class="fas fa-id-badge me-2"></i>
+              Employee Information
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <p><strong>Department:</strong> <span th:text="${employee.department ?: 'Not assigned'}">Department</span></p>
+                <p><strong>Position:</strong> <span th:text="${employee.position ?: 'Not assigned'}">Position</span></p>
+                <p><strong>Hire Date:</strong> <span th:text="${employee.hireDate != null ? #temporals.format(employee.hireDate, 'dd-MM-yyyy') : 'Not set'}">Date</span></p>
+                <p><strong>Status:</strong> <span th:class="${employee.active ? 'badge bg-success' : 'badge bg-danger'}" th:text="${employee.active ? 'Active' : 'Inactive'}">Status</span></p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>Phone:</strong> <span th:text="${employee.phoneNumber ?: 'Not set'}">Phone</span></p>
+                <p><strong>Address:</strong> <span th:text="${employee.address ?: 'Not set'}">Address</span></p>
+                <p><strong>Birth Date:</strong> <span th:text="${employee.dateOfBirth != null ? #temporals.format(employee.dateOfBirth, 'dd-MM-yyyy') : 'Not set'}">Date</span></p>
+              </div>
+            </div>
+            <div class="row mt-3" th:if="${employee.notes != null and !employee.notes.isEmpty()}">
+              <div class="col-12">
+                <p><strong>Notes:</strong></p>
+                <p th:text="${employee.notes}">Notes</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Employee Record Message -->
+        <div class="alert alert-warning mt-4" th:if="${employee == null}">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <span>You do not have an employee record in the system. Please contact an administrator.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

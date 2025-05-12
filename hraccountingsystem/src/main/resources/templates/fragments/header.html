@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:fragment="head(title)">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${title} + ' | Employee Management System'">Employee Management System</title>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" th:href="@{/css/reset.css}">
+  <link rel="stylesheet" th:href="@{/css/navbar.css}">
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+
+  <!-- Page-specific CSS -->
+  <th:block th:if="${#strings.equals(title, 'Time Tracking')}">
+    <link rel="stylesheet" th:href="@{/css/calendar.css}">
+  </th:block>
+  <th:block th:if="${#strings.equals(title, 'Login') or #strings.equals(title, 'Register')}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+  </th:block>
+  <th:block th:if="${#strings.equals(title, 'Home')}">
+    <link rel="stylesheet" th:href="@{/css/homepage.css}">
+  </th:block>
+
+</head>
+<body>
+<header th:fragment="header">
+  <nav class="modern-navbar">
+    <div class="navbar-container">
+      <!-- Logo and Brand Name -->
+      <a class="navbar-brand" th:href="@{/}">
+        <div class="brand-logo">
+          <i class="fas fa-building"></i>
+        </div>
+        <span class="brand-text">EMS</span>
+      </a>
+
+      <!-- Mobile Menu Toggle -->
+      <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <!-- Navigation Menu -->
+      <ul class="navbar-menu" id="navbarMenu">
+        <!-- Show only when logged in -->
+        <li class="navbar-item" sec:authorize="isAuthenticated()">
+          <a class="navbar-link" th:href="@{/dashboard}">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+        </li>
+
+        <!-- Admin only links -->
+        <li class="navbar-item" sec:authorize="hasRole('ADMIN')">
+          <a class="navbar-link" th:href="@{/admin/users}">
+            <i class="fas fa-users"></i> Users
+          </a>
+        </li>
+
+        <li class="navbar-item" sec:authorize="hasRole('ADMIN')">
+          <a class="navbar-link" th:href="@{/admin/employees}">
+            <i class="fas fa-id-card"></i> Employees
+          </a>
+        </li>
+
+        <!-- User only links -->
+        <li class="navbar-item" sec:authorize="isAuthenticated()">
+          <a class="navbar-link" th:href="@{/user/time-tracking}">
+            <i class="fas fa-calendar-alt"></i> Time Tracking
+          </a>
+        </li>
+
+        <!-- Notification bell with indicator -->
+        <li class="navbar-item notification-indicator" sec:authorize="isAuthenticated()">
+          <a class="navbar-link" href="#">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge">3</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- User Authentication -->
+      <div sec:authorize="!isAuthenticated()">
+        <div class="auth-buttons">
+          <a th:href="@{/auth/login}" class="btn-login">Login</a>
+          <a th:href="@{/auth/register}" class="btn-register">Register</a>
+        </div>
+      </div>
+
+      <!-- User Profile -->
+      <div class="user-profile" sec:authorize="isAuthenticated()">
+        <button class="profile-button">
+          <div class="profile-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <span sec:authentication="name">Username</span>
+          <i class="fas fa-chevron-down ms-2"></i>
+        </button>
+
+        <div class="profile-dropdown">
+          <a class="dropdown-item" th:href="@{/user/profile}">
+            <i class="fas fa-user-circle"></i> My Profile
+          </a>
+          <a class="dropdown-item" th:href="@{/user/settings}">
+            <i class="fas fa-cog"></i> Settings
+          </a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" th:href="@{/auth/logout}">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Alert Messages -->
+  <div class="container mt-3" th:if="${successMessage != null or errorMessage != null}">
+    <div class="alert-banner success" th:if="${successMessage != null}">
+      <i class="fas fa-check-circle"></i>
+      <span class="alert-message" th:text="${successMessage}">Success message</span>
+      <button type="button" class="close-button" onclick="this.parentElement.style.display='none';">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="alert-banner error" th:if="${errorMessage != null}">
+      <i class="fas fa-exclamation-circle"></i>
+      <span class="alert-message" th:text="${errorMessage}">Error message</span>
+      <button type="button" class="close-button" onclick="this.parentElement.style.display='none';">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Mobile menu toggle functionality
+  document.addEventListener('DOMContentLoaded', function() {
+      const menuToggle = document.getElementById('menuToggle');
+      const navbarMenu = document.getElementById('navbarMenu');
+
+      if (menuToggle && navbarMenu) {
+          menuToggle.addEventListener('click', function() {
+              navbarMenu.classList.toggle('active');
+          });
+      }
+  });
+</script>
+</body>
+</html>

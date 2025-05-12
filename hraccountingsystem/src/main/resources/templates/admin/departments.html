@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6" lang="en">
+<head th:replace="~{fragments/header :: head('Manage Departments')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<!-- Header -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- Main Content -->
+<main>
+  <div class="content-wrapper">
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/sidebar :: admin-sidebar(activeTab='departments')}"></div>
+
+    <!-- Main content -->
+    <div class="main-content">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h1 class="h3">Manage Departments</h1>
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
+            <i class="fas fa-plus me-2"></i>Add Department
+          </button>
+        </div>
+
+        <!-- Alert Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="fas fa-check-circle me-2"></i>
+          <span th:text="${successMessage}">Success message</span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="fas fa-exclamation-circle me-2"></i>
+          <span th:text="${errorMessage}">Error message</span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Departments Table -->
+        <div class="card">
+          <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-building me-2"></i>
+                All Departments
+              </h5>
+              <input type="text" id="departmentSearch" class="form-control form-control-sm w-auto"
+                     placeholder="Search departments..." onkeyup="searchTable()">
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover" id="departmentsTable">
+                <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Employee Count</th>
+                  <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="department : ${departments}">
+                  <td th:text="${department.id}">1</td>
+                  <td th:text="${department.name}">Human Resources</td>
+                  <td th:text="${department.description ?: 'No description'}">HR department</td>
+                  <td th:text="${departmentCounts.get(department.name) ?: 0}">5</td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <button type="button" class="btn btn-sm btn-outline-primary edit-department"
+                              th:data-id="${department.id}"
+                              th:data-name="${department.name}"
+                              th:data-description="${department.description ?: ''}"
+                              data-bs-toggle="modal" data-bs-target="#editDepartmentModal">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-danger delete-department"
+                              th:data-id="${department.id}"
+                              th:data-name="${department.name}"
+                              data-bs-toggle="modal" data-bs-target="#deleteDepartmentModal">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr th:if="${departments.empty}">
+                  <td colspan="5" class="text-center">No departments found</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Add Department Modal -->
+<div class="modal fade" id="addDepartmentModal" tabindex="-1" aria-labelledby="addDepartmentModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="addDepartmentModalLabel">
+          <i class="fas fa-plus me-2"></i>
+          Add Department
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form th:action="@{/admin/departments/add}" method="post">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="name" class="form-label">Department Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Department</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Department Modal -->
+<div class="modal fade" id="editDepartmentModal" tabindex="-1" aria-labelledby="editDepartmentModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="editDepartmentModalLabel">
+          <i class="fas fa-edit me-2"></i>
+          Edit Department
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form th:action="@{/admin/departments/update}" method="post">
+        <div class="modal-body">
+          <input type="hidden" id="editId" name="id">
+          <div class="mb-3">
+            <label for="editName" class="form-label">Department Name</label>
+            <input type="text" class="form-control" id="editName" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="editDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="editDescription" name="description" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Department</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Department Modal -->
+<div class="modal fade" id="deleteDepartmentModal" tabindex="-1" aria-labelledby="deleteDepartmentModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteDepartmentModalLabel">
+          <i class="fas fa-trash me-2"></i>
+          Delete Department
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form th:action="@{/admin/departments/delete}" method="post">
+        <div class="modal-body">
+          <input type="hidden" id="deleteId" name="id">
+          <p>Are you sure you want to delete the department: <strong id="deleteName"></strong>?</p>
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            This action cannot be undone. All employees assigned to this department will be affected.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Delete Department</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Common Scripts -->
+<div th:replace="~{fragments/footer :: scripts}"></div>
+
+<!-- Page-specific scripts -->
+<script>
+  // Search functionality
+  function searchTable() {
+    const input = document.getElementById("departmentSearch");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("departmentsTable");
+    const tr = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < tr.length; i++) { // Start from 1 to skip header row
+      let found = false;
+      const td = tr[i].getElementsByTagName("td");
+
+      // Skip if this is a "No departments found" row
+      if (td.length < 3) continue;
+
+      for (let j = 1; j < td.length - 1; j++) { // Skip ID and Actions columns
+        const txtValue = td[j].textContent || td[j].innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          found = true;
+          break;
+        }
+      }
+
+      tr[i].style.display = found ? "" : "none";
+    }
+  }
+
+  // Edit department functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle edit department modal
+    const editButtons = document.querySelectorAll('.edit-department');
+    editButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        document.getElementById('editId').value = this.getAttribute('data-id');
+        document.getElementById('editName').value = this.getAttribute('data-name');
+        document.getElementById('editDescription').value = this.getAttribute('data-description');
+      });
+    });
+
+    // Handle delete department modal
+    const deleteButtons = document.querySelectorAll('.delete-department');
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        document.getElementById('deleteId').value = this.getAttribute('data-id');
+        document.getElementById('deleteName').textContent = this.getAttribute('data-name');
+      });
+    });
+  });
+</script>
+
+// Add this script to both your department and role templates
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Make sure the modal trigger buttons work
+      console.log("DOM loaded, setting up event handlers");
+
+      // For edit departments/roles
+      const editButtons = document.querySelectorAll('.edit-department, .edit-role');
+      editButtons.forEach(button => {
+          button.addEventListener('click', function(event) {
+              console.log("Edit button clicked", this.dataset);
+              const id = this.getAttribute('data-id');
+              const name = this.getAttribute('data-name');
+              const description = this.getAttribute('data-description');
+
+              // Log to ensure data is being captured
+              console.log(`Editing: ID=${id}, Name=${name}, Description=${description}`);
+
+              // Set modal form values
+              if (document.getElementById('editId')) {
+                  document.getElementById('editId').value = id;
+              }
+              if (document.getElementById('editName')) {
+                  document.getElementById('editName').value = name;
+              }
+              if (document.getElementById('editDescription')) {
+                  document.getElementById('editDescription').value = description || '';
+              }
+          });
+      });
+
+      // For delete departments/roles
+      const deleteButtons = document.querySelectorAll('.delete-department, .delete-role');
+      deleteButtons.forEach(button => {
+          button.addEventListener('click', function(event) {
+              console.log("Delete button clicked", this.dataset);
+              const id = this.getAttribute('data-id');
+              const name = this.getAttribute('data-name');
+
+              // Log to ensure data is being captured
+              console.log(`Deleting: ID=${id}, Name=${name}`);
+
+              // Set modal form values
+              if (document.getElementById('deleteId')) {
+                  document.getElementById('deleteId').value = id;
+              }
+              if (document.getElementById('deleteName')) {
+                  document.getElementById('deleteName').textContent = name;
+              }
+
+              // If we're handling roles with user counts
+              const count = this.getAttribute('data-count');
+              if (count && document.getElementById('userCount')) {
+                  document.getElementById('userCount').textContent = count;
+
+                  // Disable delete button if count > 0
+                  if (parseInt(count) > 0 && document.getElementById('deleteButton')) {
+                      document.getElementById('deleteButton').setAttribute('disabled', 'disabled');
+                  } else if (document.getElementById('deleteButton')) {
+                      document.getElementById('deleteButton').removeAttribute('disabled');
+                  }
+              }
+          });
+      });
+
+      // Debug form submissions
+      const forms = document.querySelectorAll('form');
+      forms.forEach(form => {
+          form.addEventListener('submit', function(event) {
+              console.log('Form is being submitted', this.action);
+
+              // Uncomment this section to debug form data
+              const formData = new FormData(this);
+              for (let pair of formData.entries()) {
+                  console.log(pair[0] + ': ' + pair[1]);
+              }
+          });
+      });
+  });
+</script>
+
+<style>
+  /* Button styles */
+  .btn-outline-primary {
+    color: #0d6efd;
+    border-color: #0d6efd;
+    background-color: transparent;
+  }
+
+  .btn-outline-primary:hover {
+    color: #fff;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+  }
+
+  .btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+    background-color: transparent;
+  }
+
+  .btn-outline-danger:hover {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+  }
+</style>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6" lang="en">
+<head th:replace="~{fragments/header :: head('Admin Dashboard')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<!-- Header -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- Main Content -->
+<main>
+  <div class="content-wrapper">
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/sidebar :: admin-sidebar(activeTab='dashboard')}"></div>
+
+    <!-- Main content -->
+    <div class="main-content">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h1 class="h3">Admin Dashboard</h1>
+          <span class="badge bg-primary p-2">
+                            <i class="fas fa-calendar-day me-1"></i>
+                            <span th:text="${#temporals.format(#temporals.createNow(), 'EEEE, MMMM d, yyyy')}">Sunday, May 04, 2025</span>
+                        </span>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row g-4 mb-4">
+          <!-- Total Employees -->
+          <div class="col-md-4">
+            <div class="card stat-card h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center">
+                  <div class="stat-icon bg-primary text-white rounded-circle me-3">
+                    <i class="fas fa-users fa-lg"></i>
+                  </div>
+                  <div>
+                    <h6 class="text-muted mb-1">Total Employees</h6>
+                    <h3 class="mb-0" th:text="${totalEmployees}">0</h3>
+                  </div>
+                </div>
+                <a th:href="@{/admin/employees}" class="btn btn-sm btn-outline-primary mt-3">
+                  <i class="fas fa-arrow-right me-1"></i> View All
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Departments -->
+          <div class="col-md-4">
+            <div class="card stat-card h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center">
+                  <div class="stat-icon bg-success text-white rounded-circle me-3">
+                    <i class="fas fa-sitemap fa-lg"></i>
+                  </div>
+                  <div>
+                    <h6 class="text-muted mb-1">Departments</h6>
+                    <h3 class="mb-0" th:text="${departments.size()}">0</h3>
+                  </div>
+                </div>
+<!--                <button type="button" class="btn btn-sm btn-outline-success mt-3" data-bs-toggle="modal" data-bs-target="#departmentsModal">-->
+<!--                  <i class="fas fa-list me-1"></i> View Departments-->
+<!--                </button>-->
+              </div>
+            </div>
+          </div>
+
+          <!-- Calendar -->
+          <div class="col-md-4">
+            <div class="card stat-card h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center">
+                  <div class="stat-icon bg-warning text-white rounded-circle me-3">
+                    <i class="fas fa-calendar-alt fa-lg"></i>
+                  </div>
+                  <div>
+                    <h6 class="text-muted mb-1">Time Entries</h6>
+                    <h3 class="mb-0" th:text="${recentTimeEntries.size()}">0</h3>
+                  </div>
+                </div>
+                <a th:href="@{/admin/time-entries}" class="btn btn-sm btn-outline-warning mt-3">
+                  <i class="fas fa-arrow-right me-1"></i> View All
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Department Distribution and Recent Time Entries -->
+        <div class="row g-4 mb-4">
+          <!-- Department Distribution -->
+          <div class="col-lg-6">
+            <div class="card h-100">
+              <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                  <i class="fas fa-chart-pie me-2"></i>
+                  Department Distribution
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                    <tr>
+                      <th>Department</th>
+                      <th>Employees</th>
+                      <th>Percentage</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="entry : ${departmentCounts}">
+                      <td th:text="${entry.key}">Department</td>
+                      <td th:text="${entry.value}">0</td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <div class="progress flex-grow-1" style="height: 8px;">
+                            <div class="progress-bar bg-primary"
+                                 th:style="'width: ' + ${(entry.value / totalEmployees) * 100} + '%'"></div>
+                          </div>
+                          <span class="ms-2"
+                                th:text="${#numbers.formatDecimal((entry.value / totalEmployees) * 100, 0, 1)} + '%'">
+                                                                0%
+                                                            </span>
+                        </div>
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Time Entries -->
+          <div class="col-lg-6">
+            <div class="card h-100">
+              <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                  <i class="fas fa-history me-2"></i>
+                  Recent Time Entries
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                    <tr>
+                      <th>Employee</th>
+                      <th>Time</th>
+                      <th>Category</th>
+                      <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="entry : ${recentTimeEntries}" th:if="${entry.employee != null}">
+                      <td th:text="${entry.employee.getFullName()}">Employee Name</td>
+                      <td>
+                        <span th:text="${#temporals.format(entry.startTime, 'MMM d, HH:mm')}">May 4, 09:00</span>
+                        <span th:if="${entry.endTime != null}">
+                                                            - <span th:text="${#temporals.format(entry.endTime, 'HH:mm')}">10:00</span>
+                                                        </span>
+                      </td>
+                      <td>
+                        <span class="badge bg-secondary" th:text="${entry.category ?: 'General'}">Category</span>
+                      </td>
+                      <td>
+                                                        <span class="badge"
+                                                              th:classappend="${entry.approved ? 'bg-success' : 'bg-warning'}"
+                                                              th:text="${entry.approved ? 'Approved' : 'Pending'}">
+                                                            Status
+                                                        </span>
+                      </td>
+                    </tr>
+                    <tr th:if="${recentTimeEntries.empty}">
+                      <td colspan="4" class="text-center">No recent time entries</td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="card-footer text-end">
+                <a th:href="@{/admin/time-entries}" class="btn btn-sm btn-primary">
+                  View All <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row g-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                  <i class="fas fa-bolt me-2"></i>
+                  Quick Actions
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="row g-3 text-center">
+                  <div class="col-md-3">
+                    <a th:href="@{/admin/employees/new}" class="btn btn-outline-primary btn-lg w-100 py-3">
+                      <i class="fas fa-user-plus fa-2x mb-2"></i>
+                      <div>Add Employee</div>
+                    </a>
+                  </div>
+                  <div class="col-md-3">
+                    <a th:href="@{/admin/users/new}" class="btn btn-outline-secondary btn-lg w-100 py-3">
+                      <i class="fas fa-user-shield fa-2x mb-2"></i>
+                      <div>Create User</div>
+                    </a>
+                  </div>
+                  <div class="col-md-3">
+                    <a th:href="@{/admin/time-entries}" class="btn btn-outline-success btn-lg w-100 py-3">
+                      <i class="fas fa-check-circle fa-2x mb-2"></i>
+                      <div>Approve Time</div>
+                    </a>
+                  </div>
+                  <div class="col-md-3">
+                    <a href="#" class="btn btn-outline-info btn-lg w-100 py-3">
+                      <i class="fas fa-file-export fa-2x mb-2"></i>
+                      <div>Export Reports</div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Common Scripts -->
+<div th:replace="~{fragments/footer :: scripts}"></div>
+</body>
+</html>

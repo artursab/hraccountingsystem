@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6" lang="en">
+<head th:replace="~{fragments/header :: head('Time Entries')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<!-- Header -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- Main Content -->
+<main>
+    <div class="content-wrapper">
+        <!-- Sidebar -->
+        <div th:replace="~{fragments/sidebar :: admin-sidebar(activeTab='time-entries')}"></div>
+
+        <!-- Main content -->
+        <div class="main-content">
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3">Time Entries</h1>
+                    <span class="badge bg-primary p-2">
+            <i class="fas fa-calendar-day me-1"></i>
+            <span th:text="${#temporals.format(#temporals.createNow(), 'EEEE, MMMM d, yyyy')}">Sunday, May 04, 2025</span>
+          </span>
+                </div>
+
+                <!-- Alert Messages -->
+                <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${successMessage}">Success message</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <!-- Time Entries Table -->
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-history me-2"></i>
+                            All Time Entries
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="entry : ${timeEntries}" th:if="${entry.employee != null}">
+                                    <td th:text="${entry.employee.getFullName()}">Employee Name</td>
+                                    <td th:text="${#temporals.format(entry.startTime, 'MMM d, HH:mm')}">May 4, 09:00</td>
+                                    <td th:text="${entry.endTime != null ? #temporals.format(entry.endTime, 'MMM d, HH:mm') : 'In Progress'}">
+                                        May 4, 10:00
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary" th:text="${entry.category ?: 'General'}">Category</span>
+                                    </td>
+                                    <td>
+                    <span class="badge"
+                          th:classappend="${entry.approved ? 'bg-success' : 'bg-warning'}"
+                          th:text="${entry.approved ? 'Approved' : 'Pending'}">
+                      Status
+                    </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <a th:if="${!entry.approved}"
+                                               th:href="@{/admin/time-entries/approve/{id}(id=${entry.id}, approverId=${#authentication.principal.id})}"
+                                               class="btn btn-sm btn-outline-success" title="Approve">
+                                                <i class="fas fa-check"></i>
+                                            </a>
+                                            <a th:href="@{/admin/time-entries/delete/{id}(id=${entry.id})}"
+                                               class="btn btn-sm btn-outline-danger"
+                                               onclick="return confirm('Are you sure you want to delete this time entry?');"
+                                               title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${timeEntries.empty}">
+                                    <td colspan="6" class="text-center">No time entries found</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Common Scripts -->
+<div th:replace="~{fragments/footer :: scripts}"></div>
+
+<style>
+    /* Improved button styles */
+    .btn-outline-primary {
+      color: #0d6efd;
+      border-color: #0d6efd;
+      background-color: transparent;
+    }
+
+    .btn-outline-primary:hover {
+      color: #fff;
+      background-color: #0d6efd;
+      border-color: #0d6efd;
+    }
+
+    .btn-outline-danger {
+      color: #dc3545;
+      border-color: #dc3545;
+      background-color: transparent;
+    }
+
+    .btn-outline-danger:hover {
+      color: #fff;
+      background-color: #dc3545;
+      border-color: #dc3545;
+    }
+
+    .btn-outline-success {
+      color: #198754;
+      border-color: #198754;
+      background-color: transparent;
+    }
+
+    .btn-outline-success:hover {
+      color: #fff;
+      background-color: #198754;
+      border-color: #198754;
+    }
+
+    .btn-outline-warning {
+      color: #ffc107;
+      border-color: #ffc107;
+      background-color: transparent;
+    }
+
+    .btn-outline-warning:hover {
+      color: #000;
+      background-color: #ffc107;
+      border-color: #ffc107;
+    }
+</style>
+</body>
+</html>

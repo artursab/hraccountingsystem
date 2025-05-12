@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6" lang="en">
+<head th:replace="~{fragments/header :: head('Manage Employees')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<!-- Header -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- Main Content -->
+<main>
+  <div class="content-wrapper">
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/sidebar :: admin-sidebar(activeTab='employees')}"></div>
+
+    <!-- Main content -->
+    <div class="main-content">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h1 class="h3">Manage Employees</h1>
+          <a th:href="@{/admin/employees/new}" class="btn btn-primary">
+            <i class="fas fa-user-plus me-2"></i>Add New Employee
+          </a>
+        </div>
+
+        <!-- Alert Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="fas fa-check-circle me-2"></i>
+          <span th:text="${successMessage}">Success message</span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Employees Table -->
+        <div class="card">
+          <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-users me-2"></i>
+                All Employees
+              </h5>
+              <input type="text" id="employeeSearch" class="form-control form-control-sm w-auto"
+                     placeholder="Search employees..." onkeyup="searchTable()">
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover" id="employeesTable">
+                <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Department</th>
+                  <th>Position</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="employee : ${employees}">
+                  <td th:text="${employee.id}">1</td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-circle bg-primary text-white me-2">
+                        <span th:text="${#strings.substring(employee.firstName, 0, 1) + #strings.substring(employee.lastName, 0, 1)}">JD</span>
+                      </div>
+                      <span th:text="${employee.firstName + ' ' + employee.lastName}">John Doe</span>
+                    </div>
+                  </td>
+                  <td th:text="${employee.email}">john.doe@example.com</td>
+                  <td th:text="${employee.department ?: 'Not Assigned'}">IT</td>
+                  <td th:text="${employee.position ?: 'Not Assigned'}">Developer</td>
+                  <td>
+                    <span class="badge"
+                          th:classappend="${employee.active ? 'bg-success' : 'bg-danger'}"
+                          th:text="${employee.active ? 'Active' : 'Inactive'}">
+                      Status
+                    </span>
+                  </td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <a th:href="@{/admin/employees/edit/{id}(id=${employee.id})}"
+                         class="btn btn-sm btn-outline-primary" title="Edit">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <a th:if="${employee.active}"
+                         th:href="@{/admin/employees/deactivate/{id}(id=${employee.id})}"
+                         class="btn btn-sm btn-outline-warning"
+                         onclick="return confirm('Are you sure you want to deactivate this employee?');"
+                         title="Deactivate">
+                        <i class="fas fa-user-slash"></i>
+                      </a>
+                      <a th:href="@{/admin/employees/delete/{id}(id=${employee.id})}"
+                         class="btn btn-sm btn-outline-danger"
+                         onclick="return confirm('Are you sure you want to permanently delete this employee?');"
+                         title="Delete">
+                        <i class="fas fa-trash"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                <tr th:if="${employees.empty}">
+                  <td colspan="7" class="text-center">No employees found</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Common Scripts -->
+<div th:replace="~{fragments/footer :: scripts}"></div>
+
+<!-- Page-specific scripts -->
+<script>
+  function searchTable() {
+    const input = document.getElementById("employeeSearch");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("employeesTable");
+    const tr = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < tr.length; i++) { // Start from 1 to skip header row
+      let found = false;
+      const td = tr[i].getElementsByTagName("td");
+
+      // Skip if this is a "No employees found" row
+      if (td.length < 3) continue;
+
+      for (let j = 1; j < td.length - 1; j++) { // Skip ID and Actions columns
+        const txtValue = td[j].textContent || td[j].innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          found = true;
+          break;
+        }
+      }
+
+      tr[i].style.display = found ? "" : "none";
+    }
+  }
+</script>
+
+<style>
+  .avatar-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+
+  /* Improved button styles */
+  .btn-outline-primary {
+    color: #0d6efd;
+    border-color: #0d6efd;
+    background-color: transparent;
+  }
+
+  .btn-outline-primary:hover {
+    color: #fff;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+  }
+
+  .btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+    background-color: transparent;
+  }
+
+  .btn-outline-danger:hover {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+  }
+
+  .btn-outline-warning {
+    color: #ffc107;
+    border-color: #ffc107;
+    background-color: transparent;
+  }
+
+  .btn-outline-warning:hover {
+    color: #000;
+    background-color: #ffc107;
+    border-color: #ffc107;
+  }
+</style>
+</body>
+</html>

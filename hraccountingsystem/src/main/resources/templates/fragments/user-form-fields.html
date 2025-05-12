@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Employee Form Fields Fragment -->
+<div th:fragment="fields">
+  <!-- Personal Information -->
+  <div class="card mb-4">
+    <div class="card-header bg-light">
+      <h6 class="mb-0">Personal Information</h6>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="firstName" class="form-label">First Name</label>
+          <input type="text" class="form-control" id="firstName" th:field="*{firstName}" required>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">
+            Please provide a first name.
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label for="lastName" class="form-label">Last Name</label>
+          <input type="text" class="form-control" id="lastName" th:field="*{lastName}" required>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}">
+            Please provide a last name.
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" th:field="*{email}" required>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">
+            Please provide a valid email.
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label for="phone" class="form-label">Phone Number</label>
+          <input type="tel" class="form-control" id="phone" th:field="*{phone}">
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">
+            Please provide a valid phone number.
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label for="dateOfBirth" class="form-label">Date of Birth</label>
+          <input type="date" class="form-control" id="dateOfBirth" th:field="*{dateOfBirth}">
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}">
+            Please provide a valid date.
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label for="gender" class="form-label">Gender</label>
+          <select class="form-select" id="gender" th:field="*{gender}">
+            <option value="">Select Gender</option>
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
+            <option value="OTHER">Other</option>
+            <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Employment Information -->
+  <div class="card mb-4">
+    <div class="card-header bg-light">
+      <h6 class="mb-0">Employment Information</h6>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="department" class="form-label">Department</label>
+          <select class="form-select" id="department" th:field="*{department}">
+            <option value="">Select Department</option>
+            <option th:each="dept : ${departments}" th:value="${dept}" th:text="${dept}">Department</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label for="position" class="form-label">Position</label>
+          <input type="text" class="form-control" id="position" th:field="*{position}">
+        </div>
+        <div class="col-md-6">
+          <label for="employeeId" class="form-label">Employee ID</label>
+          <input type="text" class="form-control" id="employeeId" th:field="*{employeeId}">
+        </div>
+        <div class="col-md-6">
+          <label for="hireDate" class="form-label">Hire Date</label>
+          <input type="date" class="form-control" id="hireDate" th:field="*{hireDate}">
+        </div>
+        <div class="col-md-6">
+          <label for="salary" class="form-label">Salary</label>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input type="number" class="form-control" id="salary" th:field="*{salary}" step="0.01">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label for="manager" class="form-label">Manager</label>
+          <input type="text" class="form-control" id="manager" th:field="*{manager}">
+        </div>
+        <div class="col-md-6">
+          <div class="form-check mt-4">
+            <input class="form-check-input" type="checkbox" id="active" th:field="*{active}">
+            <label class="form-check-label" for="active">
+              Active Employee
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Account Link -->
+  <div class="card mb-4">
+    <div class="card-header bg-light">
+      <h6 class="mb-0">User Account</h6>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-12">
+          <label for="userId" class="form-label">Link to User Account</label>
+          <select class="form-select" id="userId" th:field="*{userId}">
+            <option value="">No linked account</option>
+            <option th:each="user : ${availableUsers}"
+                    th:value="${user.id}"
+                    th:text="${user.username + ' (' + user.email + ')'}">
+              User Account
+            </option>
+          </select>
+          <div class="form-text">
+            Linking an employee to a user account will allow them to log in to the system.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="d-flex justify-content-end gap-2">
+    <a th:href="@{/admin/employees}" class="btn btn-outline-secondary">
+      <i class="fas fa-times me-2"></i>Cancel
+    </a>
+    <button type="submit" class="btn btn-primary">
+      <i class="fas fa-save me-2"></i>Save Employee
+    </button>
+  </div>
+</div>
+</body>
+</html>

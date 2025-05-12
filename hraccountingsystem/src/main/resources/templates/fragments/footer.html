@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer th:fragment="footer" class="footer bg-light py-3 mt-auto">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <p class="mb-0 text-muted">
+          &copy; <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}">2025</span>
+          Employee Management System
+        </p>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <p class="mb-0 text-muted">
+          <span>Version 1.0.0</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Common JavaScript code that should be included in all pages -->
+<th:block th:fragment="scripts">
+  <script>
+    // Initialize all tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+
+    // Auto-hide alerts after 5 seconds
+    setTimeout(function() {
+        $('.alert').alert('close');
+    }, 5000);
+  </script>
+</th:block>
+</body>
+</html>
