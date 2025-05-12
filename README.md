@@ -1,0 +1,31 @@
+This project is a first-year software engineering coursework implementation of a human resources accounting system. It provides functionality for employee management, time tracking, organizational structure, and reporting to help businesses efficiently manage their workforce.
+
+The application follows a three-tier architecture:
+src/
+├── main/
+│   ├── java/com/company/ems/
+│   │   ├── config/           # Configuration classes
+│   │   ├── controller/       # MVC controllers
+│   │   ├── dto/              # Data Transfer Objects
+│   │   ├── model/            # Entity models
+│   │   ├── repository/       # Data access layer
+│   │   ├── service/          # Business logic
+│   │   └── EmsMvcApplication.java  # Application entry point
+│   └── resources/
+│       ├── static/           # CSS, JS, images
+│       └── templates/        # Thymeleaf HTML templates
+└── test/                     # Unit and integration tests
+
+Installation
+
+Clone the repository
+git clone https://github.com/yourusername/hr-accounting-system.git
+cd hr-accounting-system
+
+Build the project
+mvn clean install
+
+Run the application
+mvn spring-boot:run
+
+Access the application at http://localhost:8080
