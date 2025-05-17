@@ -5,13 +5,26 @@
 <!-- Header -->
 <div th:replace="~{fragments/header :: header}"></div>
 
+<style>
+  .login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 150px); /* Adjust based on your header/footer height */
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 450px;
+  }
+</style>
+
 <!-- Main Content -->
 <main class="flex-shrink-0">
-  <div class="container py-5">
-    <div class="row justify-content-center">
-      <div class="col-md-6 col-lg-5">
-        <div class="card shadow-sm">
-          <div class="card-header bg-primary text-white">
+  <div class="login-container">
+    <div class="login-card">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
             <h4 class="mb-0">
               <i class="fas fa-sign-in-alt me-2"></i>
               Login
